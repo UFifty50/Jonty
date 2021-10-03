@@ -9,6 +9,6 @@ If you want to get this bot running on your machine, then youll need to do a few
    - `changelog.txt`
    - `prefixes.json`
    - `.env`
-   - an `msglogs` directory
+   - and an `msglogs` directory
 5. Copy your bot token into the token field in main.py.
 6. Jonty should now be able to run!
