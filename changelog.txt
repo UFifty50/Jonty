@@ -1,0 +1,13 @@
+# This is Jonty's changelog File
+
+# Titles begin with a "?"
+
+# Descriptions have no prefix and go on the line beneath the Title
+# Descriptions can only be on one line
+
+# Support discords formatting (i.e. * * for italic, ** ** for bold, and so and so forth)
+
+# TODO: allow multi-line descriptions
+
+?Slash commands!
+currently 10 out of 14 commands have been converted to being slash-compatible
