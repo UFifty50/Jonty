@@ -15,7 +15,7 @@ from discord.ext.commands.core import Command
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-token = "" # Put your token here
+token = open(".env", "r").read()
 # logger = logging.getLogger('discord')
 # logger.setLevel(logging.DEBUG)
 # handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
