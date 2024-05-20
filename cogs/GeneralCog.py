@@ -1,12 +1,16 @@
+import os
+import logging
+from logging import Logger
 import random
 import requests
 import discord
+import discord.colour
 from discord import app_commands
 from discord.ext import commands
-import discord.colour
-import os
 
 from Utils import Colour, sendEmbed
+
+JontyLogger: Logger = logging.getLogger("Jonty")
 
 
 class GeneralCog(commands.Cog):
@@ -17,7 +21,7 @@ class GeneralCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("GeneralCog is ready")
+        JontyLogger.info("GeneralCog is ready")
 
     @app_commands.command(name="sync", description="Syncs the commands")
     async def sync(self, interaction: discord.Interaction):
@@ -106,12 +110,12 @@ class GeneralCog(commands.Cog):
     @app_commands.command(
         name="anime-meme", description="A command to summon a random anime meme."
     )
-    async def am(self, interaction: discord.Interaction):
+    async def animeMeme(self, interaction: discord.Interaction):
         imageListJson = requests.get(
             f"https://api.imgur.com/3/album/5TryDub/images?client_id={os.environ['IMGUR_CLIENT_ID']}"
         ).json()["data"]
         imageLink = random.choice(imageListJson)["link"]
-        
+
         em = discord.Embed(title="Have a meme!")
         em.set_image(url=imageLink)
 
@@ -180,19 +184,19 @@ class GeneralCog(commands.Cog):
             f"https://api.imgur.com/3/album/kzSdMGw/images?client_id={os.environ['IMGUR_CLIENT_ID']}"
         ).json()["data"]
         imageLink = random.choice(imageListJson)["link"]
-        
+
         em = discord.Embed(title="OWL")
         em.set_image(url=imageLink)
-        
+
         await sendEmbed(interaction, em)
 
 
 cmds = [
     GeneralCog.owl.name,
- #   GeneralCog.changelog.name,
+    #   GeneralCog.changelog.name,
     GeneralCog.ping.name,
     GeneralCog.hi.name,
-    GeneralCog.am.name,
+    GeneralCog.animeMeme.name,
     GeneralCog.sync.name,
     # generalCog.sfc.name,
     # generalCog.fc.name,

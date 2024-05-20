@@ -1,11 +1,16 @@
-import random
-import discord
-import requests
 import os
+import logging
+from logging import Logger
+import random
+import requests
+import discord
 from discord.ext import commands
 from discord import app_commands
+
 from Utils import sendEmbed
 
+
+JontyLogger: Logger = logging.getLogger("Jonty")
 
 class RoleplayCog(commands.Cog):
     def __init__(self, bot):
@@ -13,7 +18,7 @@ class RoleplayCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("RoleplayCog is ready")
+        JontyLogger.info("RoleplayCog is ready")
 
     @app_commands.command(name="bonk", description="bonks whoever you mention ;)")
     @app_commands.describe(bonk="who you gonna bonk bro")

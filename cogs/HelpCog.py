@@ -1,9 +1,14 @@
+import os
+import logging
+from logging import Logger
+import discord
 from discord import app_commands
 from discord.ext import commands
-from Utils import sendEmbed
-import discord
-import os
 
+from Utils import sendEmbed
+
+
+JontyLogger: Logger = logging.getLogger("Jonty")
 
 class HelpCog(commands.Cog):
     bot: commands.Bot
@@ -13,7 +18,7 @@ class HelpCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("HelpCog is ready")
+        JontyLogger.info("HelpCog is ready")
 
     @app_commands.command(name="help", description="Shows all modules of that bot")
     @app_commands.describe(module="Module to get help for")

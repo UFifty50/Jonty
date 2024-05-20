@@ -1,89 +1,45 @@
-import discord
 import os
-import asyncio
-import discord.colour
+import atexit
+import logging
+import logging.config
+from logging import Handler, Logger
+from logging.handlers import QueueHandler
+
+import discord
 from discord.ext import commands
+import discord.colour
+
+import yaml
+import asyncio
+
+from Utils import MaxLevelFilter  # for logging
+
 import dotenv
 
 dotenv.load_dotenv()
 
-token = os.environ["TOKEN"]
-# logger = logging.getLogger('discord')
-# logger.setLevel(logging.DEBUG)
-# handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-# handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-# logger.addHandler(handler)
+
+JontyLogger: Logger = logging.getLogger("Jonty")
 
 intents = discord.Intents.default()
-bot = commands.Bot("", intents=intents)
+bot = commands.Bot(".", intents=intents)
 
 
-@bot.event
-async def on_ready():
-    if bot.user is None:
-        print("Bot failed to log in. Exiting...")
-        return
+def setupLogging():
+    loggingConfig: dict
 
-    print("Logged in as", bot.user)
-    print("ID:", bot.user.id)
+    with open("loggingConfig.yml", "r") as f:
+        loggingConfig = yaml.safe_load(f)
 
-    await bot.tree.sync()
-    print("Synced")
+    logging.config.dictConfig(loggingConfig)
 
-    await bot.change_presence(activity=discord.Game("Now with slash commands!"))
+    queueHandler: Handler | None = logging.getHandlerByName("QueueHandler")
+    if isinstance(queueHandler, QueueHandler):
+        JontyLogger.debug("QueueHandler found")
+        queueHandler.listener.start()  # type: ignore
+        atexit.register(queueHandler.listener.stop)  # type: ignore
 
-
-# @bot.command(name="timer")
-# async def remind(ctx, time: int, x):
-#     #    if x != None:
-#     if x == "m":
-#         print("mins")
-#         date = datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now(
-#         ).day, datetime.datetime.now().hour, datetime.datetime.now().minute + time, datetime.datetime.now().second)
-#         timers.Timer(bot, "reminder", date, args=(
-#             ctx.channel.id, ctx.author.id, f"{time}", f"{x}")).start()
-#         await ctx.send(f"Your {time} minute timer has been started.")
-
-#     elif x == "s":
-#         print("seconds")
-#         date = datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now(
-#         ).day, datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second + time)
-#         timers.Timer(bot, "reminder", date, args=(
-#             ctx.channel.id, ctx.author.id, f"{time}", f"{x}")).start()
-#         await ctx.send(f"Your {time} second timer has been started.")
-
-#     elif x == "h":
-#         print("hours")
-#         date = datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now(
-#         ).day, datetime.datetime.now().hour + time, datetime.datetime.now().minute, datetime.datetime.now().second)
-#         timers.Timer(bot, "reminder", date, args=(
-#             ctx.channel.id, ctx.author.id, f"{time}", f"{x}")).start()
-#         await ctx.send(f"Your {time} hour timer has been started.")
-#    else:
-# date = datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day, datetime.datetime.now().hour, datetime.datetime.now().minute + time, datetime.datetime.now().second)
-# timers.Timer(bot, "reminder", date, args = (ctx.channel.id, ctx.author.id, f"{time}", f"{x}")).start()
-# await ctx.send(f"Your {time} minute timer has been started.")
-#        print("huh, weird lol")
-
-
-# @bot.event
-# async def on_reminder(channel_id, author_id, text, x):
-#     channel = bot.get_channel(channel_id)
-#     if x != None:
-#         await channel.send("Your {0}{1} timer is up, <@{2}>!".format(text, x, author_id))
-#     else:
-#         await channel.send("Your {0} minute timer is up, <@{1}>!".format(text, author_id))
-
-
-class NewHelpName(commands.MinimalHelpCommand):
-    async def send_pages(self):
-        destination = self.get_destination()
-        for page in self.paginator.pages:
-            em = discord.Embed(description=page)
-            await destination.send(embed=em)
-
-
-bot.help_command = NewHelpName()
+    JontyLogger.info("Logging setup complete")
 
 
 async def load():
@@ -93,10 +49,27 @@ async def load():
             await bot.load_extension(f"cogs.{filename[:-3]}")
 
 
+@bot.event
+async def on_ready():
+    if bot.user is None:
+        JontyLogger.critical("Bot failed to log in. Exiting...")
+        return
+
+    JontyLogger.info(f"Logged in as {bot.user}")
+    JontyLogger.debug(f"ID: {bot.user.id}")
+
+    await bot.tree.sync()
+    JontyLogger.debug("Synced commands")
+
+    await bot.change_presence(activity=discord.Game("Now with slash commands!"))
+    JontyLogger.info("Bot is ready")
+
+
 async def main():
+    setupLogging()
     async with bot:
         await load()
-        await bot.start(token)
+        await bot.start(os.environ["TOKEN"])
 
 
 if __name__ == "__main__":
