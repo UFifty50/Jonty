@@ -33,7 +33,9 @@ def setupLogging():
 
     logging.config.dictConfig(loggingConfig)
 
-    queueHandler: Handler | None = logging.getHandlerByName("QueueHandler")
+    if hasattr(logging, "getHandlerByName"):
+        queueHandler: Handler | None = logging.getHandlerByName("QueueHandler")
+        
     if isinstance(queueHandler, QueueHandler):
         JontyLogger.debug("QueueHandler found")
         queueHandler.listener.start()  # type: ignore
