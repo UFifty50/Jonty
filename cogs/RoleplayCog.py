@@ -1,4 +1,5 @@
 import os
+from random import random
 import logging
 from logging import Logger
 import random
@@ -124,6 +125,27 @@ class RoleplayCog(commands.Cog):
             ]
             await interaction.response.send_message(random.choice(sample))
 
+    @app_commands.command(name="bottom-noises", description="Make some bottom noises you silly little bottom")
+    async def bottomNoises(self, interaction: discord.Interaction):
+        topRow = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]
+        middleRow = ["a", "s", "d", "f", "g", "h", "j", "k", "l"]
+        bottomRow = ["z", "x", "c", "v", "b", "n", "m"]
+        
+        # bottoms spam various keys, but the middle row is most common
+        bottomNoises = []
+        for i in range(random.randint(2, 5)):
+            selectedRow = random.choice([topRow, middleRow, middleRow, middleRow, bottomRow, bottomRow])
+            if selectedRow == topRow:
+                weights = [0.05, 0.05, 0.1, 0.05, 0.2, 0.05, 0.1, 0.1, 0.1, 0.2]
+            elif selectedRow == bottomRow:
+                weights = [0.05, 0.05, 0.1, 0.05, 0.25, 0.25, 0.25]
+            else:
+                weights = None 
+            random.shuffle(selectedRow)
+            bottomNoises += random.choices(selectedRow, weights=weights, k=random.randint(2, 5))
+        
+        await interaction.response.send_message("".join(bottomNoises))
+            
 
 cmds = [
     RoleplayCog.pat.name,
@@ -131,6 +153,7 @@ cmds = [
     RoleplayCog.kill.name,
     RoleplayCog.boop.name,
     RoleplayCog.bonk.name,
+    RoleplayCog.bottomNoises.name,
 ]
 
 
