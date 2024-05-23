@@ -24,6 +24,12 @@ class RoleplayCog(commands.Cog):
     @app_commands.command(name="bonk", description="bonks whoever you mention ;)")
     @app_commands.describe(bonk="who you gonna bonk bro")
     async def bonk(self, interaction: discord.Interaction, bonk: discord.Member):
+        """bonk bonks the mentioned user
+        
+        Args:
+            interaction (discord.Interaction): The discord interaction object
+            bonk (discord.Member): The user to bonk
+        """
         invokerName = (
             interaction.user.nick if interaction.user.nick else interaction.user.name  # type: ignore
         )
@@ -127,23 +133,21 @@ class RoleplayCog(commands.Cog):
 
     @app_commands.command(name="bottom-noises", description="Make some bottom noises you silly little bottom")
     async def bottomNoises(self, interaction: discord.Interaction):
-        topRow = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]
-        middleRow = ["a", "s", "d", "f", "g", "h", "j", "k", "l"]
-        bottomRow = ["z", "x", "c", "v", "b", "n", "m"]
-        
-        # bottoms spam various keys, but the middle row is most common
-        bottomNoises = []
-        for i in range(random.randint(2, 5)):
-            selectedRow = random.choice([topRow, middleRow, middleRow, middleRow, bottomRow, bottomRow])
-            if selectedRow == topRow:
-                weights = [0.05, 0.05, 0.1, 0.05, 0.2, 0.05, 0.1, 0.1, 0.1, 0.2]
-            elif selectedRow == bottomRow:
-                weights = [0.05, 0.05, 0.1, 0.05, 0.25, 0.25, 0.25]
-            else:
-                weights = None 
-            random.shuffle(selectedRow)
-            bottomNoises += random.choices(selectedRow, weights=weights, k=random.randint(2, 5))
-        
+        vowels = "aeiouy"
+        most = "sdfghjkltpcbnm"
+        least = "qzxvwr"
+
+        # Creating a weighted character list
+        weightedChars = list(vowels) * 6 + list(most) * 4 + list(least) * 2
+        bottomNoises: list[str] = []
+
+        while len(bottomNoises) < random.randint(7, 18):
+            char = random.choice(weightedChars)
+            # Avoid repeating the same character too much
+            if len(bottomNoises) >= 2 and (char == bottomNoises[-1] or char == bottomNoises[-2]):
+                continue
+            bottomNoises.append(char)
+
         await interaction.response.send_message("".join(bottomNoises))
             
 
