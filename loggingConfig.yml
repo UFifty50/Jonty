@@ -1,0 +1,58 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+    simpleDebug:
+      format: "[%(levelname)s|%(name)s] %(asctime)s: %(message)s"
+    simpleWarn:
+      format: "[%(levelname)s|%(name)s|Line %(lineno)d] at %(asctime)s in %(filename)s: %(message)s"
+
+filters:
+    nonCritical:
+        (): __main__.MaxLevelFilter
+        maxLevel: 30                    # 30 = WARNING
+
+handlers:
+    FILE_genericHandler:
+        class: logging.handlers.RotatingFileHandler
+        level: DEBUG
+        formatter: simpleDebug
+        filename: logs/JontyLog.log
+        maxBytes: 100000
+        backupCount: 5
+        encoding: utf-8
+        mode: a
+        filters: 
+        - nonCritical
+    
+    FILE_warnHandler:
+        level: WARNING
+        formatter: simpleWarn
+        class: logging.handlers.RotatingFileHandler
+        filename: logs/JontyLog.log
+        maxBytes: 100000
+        backupCount: 5
+        encoding: utf-8
+        mode: a
+    
+    STDERR_warnHandler:
+        level: WARNING
+        formatter: simpleWarn
+        class: logging.StreamHandler
+        stream: ext://sys.stderr
+
+    QueueHandler:
+        class: logging.handlers.QueueHandler
+        respect_handler_level: true
+        handlers:
+        - FILE_genericHandler
+        - FILE_warnHandler
+        - STDERR_warnHandler
+
+    
+
+loggers:
+    Jonty:
+        level: DEBUG
+        propagate: true
+        handlers:
+        - QueueHandler

@@ -1,11 +1,17 @@
-import random
-import discord
-import requests
 import os
+from random import random
+import logging
+from logging import Logger
+import random
+import requests
+import discord
 from discord.ext import commands
 from discord import app_commands
+
 from Utils import sendEmbed
 
+
+JontyLogger: Logger = logging.getLogger("Jonty")
 
 class RoleplayCog(commands.Cog):
     def __init__(self, bot):
@@ -13,11 +19,17 @@ class RoleplayCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("RoleplayCog is ready")
+        JontyLogger.info("RoleplayCog is ready")
 
     @app_commands.command(name="bonk", description="bonks whoever you mention ;)")
     @app_commands.describe(bonk="who you gonna bonk bro")
     async def bonk(self, interaction: discord.Interaction, bonk: discord.Member):
+        """bonk bonks the mentioned user
+        
+        Args:
+            interaction (discord.Interaction): The discord interaction object
+            bonk (discord.Member): The user to bonk
+        """
         invokerName = (
             interaction.user.nick if interaction.user.nick else interaction.user.name  # type: ignore
         )
@@ -119,6 +131,25 @@ class RoleplayCog(commands.Cog):
             ]
             await interaction.response.send_message(random.choice(sample))
 
+    @app_commands.command(name="bottom-noises", description="Make some bottom noises you silly little bottom")
+    async def bottomNoises(self, interaction: discord.Interaction):
+        vowels = "aeiouy"
+        most = "sdfghjkltpcbnm"
+        least = "qzxvwr"
+
+        # Creating a weighted character list
+        weightedChars = list(vowels) * 6 + list(most) * 4 + list(least) * 2
+        bottomNoises: list[str] = []
+
+        while len(bottomNoises) < random.randint(7, 18):
+            char = random.choice(weightedChars)
+            # Avoid repeating the same character too much
+            if len(bottomNoises) >= 2 and (char == bottomNoises[-1] or char == bottomNoises[-2]):
+                continue
+            bottomNoises.append(char)
+
+        await interaction.response.send_message("".join(bottomNoises))
+            
 
 cmds = [
     RoleplayCog.pat.name,
@@ -126,6 +157,7 @@ cmds = [
     RoleplayCog.kill.name,
     RoleplayCog.boop.name,
     RoleplayCog.bonk.name,
+    RoleplayCog.bottomNoises.name,
 ]
 
 

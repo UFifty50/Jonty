@@ -1,3 +1,4 @@
+import logging
 import discord
 import enum
 
@@ -9,15 +10,27 @@ class Colour(enum.Enum):
     red = 0xFF0000
     green = 0x00C800
 
+
+class MaxLevelFilter(logging.Filter):
+    def __init__(self, maxLevel: int):
+        self.maxLevel = maxLevel
+
+    def filter(self, record: logging.LogRecord):
+        return record.levelno < self.maxLevel
+
+
 async def sendEmbed(interaction: discord.Interaction, embed: discord.Embed):
-    """
-    Function that handles the sending of embeds
-    -> Takes context and embed to send
+    """Handles the sending of embeds
+
     - tries to send embed in channel
-    - tries to send normal message when that fails
-    - tries to send embed private with information about missing permissions
-    If this all fails: https://youtu.be/dQw4w9WgXcQ
+    - tries to send normal if that fails
+    - tries to send ephemeral message if that fails
+
+    Args:
+        interaction (discord.Interaction): The interaction object
+        embed (discord.Embed): The embed to send
     """
+
     try:
         await interaction.response.send_message(embed=embed)
     except discord.Forbidden:
@@ -27,8 +40,6 @@ async def sendEmbed(interaction: discord.Interaction, embed: discord.Embed):
             )
         except discord.Forbidden:
             await interaction.response.send_message(
-                f"Hey, seems like I can't send any message in {interaction.channel.name} on {interaction.guild.name}\n" # type: ignore
-                f"May you inform the server team about this issue? :slight_smile: ",
-                embed=embed,
+                "Hey, seems like I can't send any message in this channel. Please inform the server team about this issue.",
                 ephemeral=True,
             )
